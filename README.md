@@ -112,176 +112,271 @@ The program performs the following steps:
 
 -------------------------
 
-### Example Calculation 
+### Example Calculation the CRC-16-CCITT checksum for a given data sequence.
 
-The CRC-16-CCITT algorithm is a widely used error-detecting code that generates a 16-bit checksum. It uses a specific polynomial for its calculations: $$x^{16} + x^{12} + x^{5} + 1$$, which corresponds to the hexadecimal value 0x1021. However, in the provided code, the polynomial is represented as 0x8408, which is the reflected version of 0x1021 for the implementation details.
+**Given Data**: Let's consider the data sequence `0x31 0x32 0x33 0x34`, which corresponds to the ASCII values of '1', '2', '3', '4'.
 
-#### Algorithm Steps
+**Polynomial**: The CRC-16-CCITT uses the polynomial $$ x^{16} + x^{12} + x^{5} + 1 $$, which corresponds to the hexadecimal value `0x1021`. However, in the code provided, the polynomial used in the shift operation is `0x8408`, which is the reflected version of `0x1021` for byte-wise processing.
 
-1. **Initialization**:
-   - Start with a 16-bit register initialized to 0xFFFF.
+**Initialization**:
+- Initial register value: `0xFFFF` (all bits set to 1).
 
-2. **Processing Each Byte**:
-   - For each byte in the data:
-     - XOR the top 8 bits of the register with the current data byte.
-     - For each of the 8 bits in the byte:
-       - If the least significant bit (LSB) of the register is 1, shift the register right and XOR it with the polynomial (0x8408).
-       - If the LSB is 0, just shift the register right.
+**Algorithm**:
+1. For each byte in the data:
+   a. XOR the register with the current data byte.
+   b. For each bit in the byte (8 times):
+      i. If the high bit of the register is set, shift the register to the right by one and XOR with the polynomial (`0x8408`).
+      ii. Otherwise, just shift the register to the right by one.
 
-3. **Final Checksum**:
-   - The final value in the register is the checksum.
+2. The final register value is the checksum.
 
-#### Example Data
+### Step-by-Step Calculation
 
-Let's calculate the CRC-16-CCITT for the data sequence: 0x31, 0x32, 0x33 (corresponding to ASCII '1', '2', '3').
+Let's go through the calculation step by step for the data sequence `0x31 0x32 0x33 0x34`.
 
-#### Step-by-Step Calculation
+#### Step 1: Initialize the register
+$$ \text{register} = 0xFFFF $$
 
-1. **Initialization**:
-   $$
-   \text{register} = 0xFFFF
-   $$
+#### Step 2: Process each byte
 
-2. **Processing the First Byte (0x31)**:
+**First byte: 0x31**
 
-   - **XOR register with data byte**:
-     $$
-     0xFFFF \oplus 0x31 = 0xFFC0
-     $$
+1. XOR register with data byte:
+   $$ 0xFFFF \oplus 0x31 = 0xFFCC $$
 
-   - **Bitwise Processing**:
-     - Bit 7: 0x80 (128)
-       - LSB of 0xFFC0 is 0 (register: 0xFFC0 & 0x0001 = 0)
-       - Shift right: 0xFFC0 >> 1 = 0x7FF8
-     - Bit 6: 0x40 (64)
-       - LSB of 0x7FF8 is 0
-       - Shift right: 0x7FF8 >> 1 = 0x3FFC
-     - Bit 5: 0x20 (32)
-       - LSB of 0x3FFC is 0
-       - Shift right: 0x3FFC >> 1 = 0x1FFE
-     - Bit 4: 0x10 (16)
-       - LSB of 0x1FFE is 0
-       - Shift right: 0x1FFE >> 1 = 0x0FFE
-     - Bit 3: 0x08 (8)
-       - LSB of 0x0FFE is 0
-       - Shift right: 0x0FFE >> 1 = 0x07FE
-     - Bit 2: 0x04 (4)
-       - LSB of 0x07FE is 0
-       - Shift right: 0x07FE >> 1 = 0x03FE
-     - Bit 1: 0x02 (2)
-       - LSB of 0x03FE is 0
-       - Shift right: 0x03FE >> 1 = 0x01FE
-     - Bit 0: 0x01 (1)
-       - LSB of 0x01FE is 0
-       - Shift right: 0x01FE >> 1 = 0x00FE
+2. For each bit in the byte (8 times):
 
-   - **Final register after first byte**: 0x00FE
+   - Bit 1:
+     - High bit of 0xFFCC is 1 (0b1111111111001100)
+     - Shift right: 0x7FF9
+     - XOR with polynomial 0x8408:
+       $$ 0x7FF9 \oplus 0x8408 = 0xF7F1 $$
 
-3. **Processing the Second Byte (0x32)**:
+   - Bit 2:
+     - High bit of 0xF7F1 is 1 (0b1111011111110001)
+     - Shift right: 0x7BFB
+     - XOR with polynomial 0x8408:
+       $$ 0x7BFB \oplus 0x8408 = 0xFDF3 $$
 
-   - **XOR register with data byte**:
-     $$
-     0x00FE \oplus 0x32 = 0x33D
-     $$
+   - Bit 3:
+     - High bit of 0xFDF3 is 1 (0b1111110111110011)
+     - Shift right: 0x7DF9
+     - XOR with polynomial 0x8408:
+       $$ 0x7DF9 \oplus 0x8408 = 0xF9F1 $$
 
-   - **Bitwise Processing**:
-     - Bit 7: 0x80 (128)
-       - LSB of 0x033D is 1 (register: 0x033D & 0x0001 = 1)
-       - Shift right and XOR with 0x8408:
-         $$
-         (0x033D >> 1) = 0x019E
-         $$
-         $$
-         0x019E \oplus 0x8408 = 0x85A6
-         $$
-     - Bit 6: 0x40 (64)
-       - LSB of 0x85A6 is 0
-       - Shift right: 0x85A6 >> 1 = 0x42D3
-     - Bit 5: 0x20 (32)
-       - LSB of 0x42D3 is 1
-       - Shift right and XOR with 0x8408:
-         $$
-         (0x42D3 >> 1) = 0x2169
-         $$
-         $$
-         0x2169 \oplus 0x8408 = 0x8561
-         $$
-     - Bit 4: 0x10 (16)
-       - LSB of 0x8561 is 1
-       - Shift right and XOR with 0x8408:
-         $$
-         (0x8561 >> 1) = 0x42B0
-         $$
-         $$
-         0x42B0 \oplus 0x8408 = 0x86B8
-         $$
-     - Bit 3: 0x08 (8)
-       - LSB of 0x86B8 is 0
-       - Shift right: 0x86B8 >> 1 = 0x435C
-     - Bit 2: 0x04 (4)
-       - LSB of 0x435C is 0
-       - Shift right: 0x435C >> 1 = 0x21AE
-     - Bit 1: 0x02 (2)
-       - LSB of 0x21AE is 0
-       - Shift right: 0x21AE >> 1 = 0x10D7
-     - Bit 0: 0x01 (1)
-       - LSB of 0x10D7 is 1
-       - Shift right and XOR with 0x8408:
-         $$
-         (0x10D7 >> 1) = 0x086B
-         $$
-         $$
-         0x086B \oplus 0x8408 = 0x8C63
-         $$
+   - Bit 4:
+     - High bit of 0xF9F1 is 1 (0b1111100111110001)
+     - Shift right: 0x7CF3
+     - XOR with polynomial 0x8408:
+       $$ 0x7CF3 \oplus 0x8408 = 0xF8F9 $$
 
-   - **Final register after second byte**: 0x8C63
+   - Bit 5:
+     - High bit of 0xF8F9 is 1 (0b1111100011111001)
+     - Shift right: 0x7A7D
+     - XOR with polynomial 0x8408:
+       $$ 0x7A7D \oplus 0x8408 = 0xFEA5 $$
 
-4. **Processing the Third Byte (0x33)**:
+   - Bit 6:
+     - High bit of 0xFEA5 is 1 (0b1111111010100101)
+     - Shift right: 0x7F59
+     - XOR with polynomial 0x8408:
+       $$ 0x7F59 \oplus 0x8408 = 0xF951 $$
 
-   - **XOR register with data byte**:
-     $$
-     0x8C63 \oplus 0x33 = 0x8C50
-     $$
+   - Bit 7:
+     - High bit of 0xF951 is 1 (0b1111100101010001)
+     - Shift right: 0x7C93
+     - XOR with polynomial 0x8408:
+       $$ 0x7C93 \oplus 0x8408 = 0xF89B $$
 
-   - **Bitwise Processing**:
-     - Bit 7: 0x80 (128)
-       - LSB of 0x8C50 is 0
-       - Shift right: 0x8C50 >> 1 = 0x4628
-     - Bit 6: 0x40 (64)
-       - LSB of 0x4628 is 0
-       - Shift right: 0x4628 >> 1 = 0x2314
-     - Bit 5: 0x20 (32)
-       - LSB of 0x2314 is 0
-       - Shift right: 0x2314 >> 1 = 0x118A
-     - Bit 4: 0x10 (16)
-       - LSB of 0x118A is 0
-       - Shift right: 0x118A >> 1 = 0x08C5
-     - Bit 3: 0x08 (8)
-       - LSB of 0x08C5 is 1
-       - Shift right and XOR with 0x8408:
-         $$
-         (0x08C5 >> 1) = 0x0462
-         $$
-         $$
-         0x0462 \oplus 0x8408 = 0x886A
-         $$
-     - Bit 2: 0x04 (4)
-       - LSB of 0x886A is 0
-       - Shift right: 0x886A >> 1 = 0x4435
-     - Bit 1: 0x02 (2)
-       - LSB of 0x4435 is 1
-       - Shift right and XOR with 0x8408:
-         $$
-         (0x4435 >> 1) = 0x221A
-         $$
-         $$
-         0x221A \oplus 0x8408 = 0x8612
-         $$
-     - Bit 0: 0x01 (1)
-       - LSB of 0x8612 is 0
-       - Shift right: 0x8612 >> 1 = 0x4309
+   - Bit 8:
+     - High bit of 0xF89B is 1 (0b1111100010011011)
+     - Shift right: 0x7C4D
+     - XOR with polynomial 0x8408:
+       $$ 0x7C4D \oplus 0x8408 = 0xF845 $$
 
-   - **Final register after third byte**: 0x4309
+After processing the first byte, the register is `0xF845`.
 
-5. **Final Checksum**:
-   - The final value in the register is 0x4309. This is the CRC-16-CCITT checksum for the data sequence 0x31, 0x32, 0x33.
+**Second byte: 0x32**
+
+1. XOR register with data byte:
+   $$ 0xF845 \oplus 0x32 = 0xC077 $$
+
+2. For each bit in the byte (8 times):
+
+   - Bit 1:
+     - High bit of 0xC077 is 1 (0b1100000001110111)
+     - Shift right: 0x603B
+     - XOR with polynomial 0x8408:
+       $$ 0x603B \oplus 0x8408 = 0xE433 $$
+
+   - Bit 2:
+     - High bit of 0xE433 is 1 (0b1110010000110011)
+     - Shift right: 0x7219
+     - XOR with polynomial 0x8408:
+       $$ 0x7219 \oplus 0x8408 = 0xF611 $$
+
+   - Bit 3:
+     - High bit of 0xF611 is 1 (0b1111011000010001)
+     - Shift right: 0x7B03
+     - XOR with polynomial 0x8408:
+       $$ 0x7B03 \oplus 0x8408 = 0xFB0B $$
+
+   - Bit 4:
+     - High bit of 0xFB0B is 1 (0b1111101100001011)
+     - Shift right: 0x7D85
+     - XOR with polynomial 0x8408:
+       $$ 0x7D85 \oplus 0x8408 = 0xF98D $$
+
+   - Bit 5:
+     - High bit of 0xF98D is 1 (0b1111100110001101)
+     - Shift right: 0x7CB9
+     - XOR with polynomial 0x8408:
+       $$ 0x7CB9 \oplus 0x8408 = 0xF8B1 $$
+
+   - Bit 6:
+     - High bit of 0xF8B1 is 1 (0b1111100010110001)
+     - Shift right: 0x7A53
+     - XOR with polynomial 0x8408:
+       $$ 0x7A53 \oplus 0x8408 = 0xFE5B $$
+
+   - Bit 7:
+     - High bit of 0xFE5B is 1 (0b1111111001011011)
+     - Shift right: 0x7F2D
+     - XOR with polynomial 0x8408:
+       $$ 0x7F2D \oplus 0x8408 = 0xF925 $$
+
+   - Bit 8:
+     - High bit of 0xF925 is 1 (0b1111100100100101)
+     - Shift right: 0x7C99
+     - XOR with polynomial 0x8408:
+       $$ 0x7C99 \oplus 0x8408 = 0xF891 $$
+
+After processing the second byte, the register is `0xF891`.
+
+**Third byte: 0x33**
+
+1. XOR register with data byte:
+   $$ 0xF891 \oplus 0x33 = 0xC0A2 $$
+
+2. For each bit in the byte (8 times):
+
+   - Bit 1:
+     - High bit of 0xC0A2 is 1 (0b1100000010100010)
+     - Shift right: 0x6059
+     - XOR with polynomial 0x8408:
+       $$ 0x6059 \oplus 0x8408 = 0xE451 $$
+
+   - Bit 2:
+     - High bit of 0xE451 is 1 (0b1110010001010001)
+     - Shift right: 0x7223
+     - XOR with polynomial 0x8408:
+       $$ 0x7223 \oplus 0x8408 = 0xF62B $$
+
+   - Bit 3:
+     - High bit of 0xF62B is 1 (0b1111011000101011)
+     - Shift right: 0x7B1D
+     - XOR with polynomial 0x8408:
+       $$ 0x7B1D \oplus 0x8408 = 0xFB15 $$
+
+   - Bit 4:
+     - High bit of 0xFB15 is 1 (0b1111101100010101)
+     - Shift right: 0x7D8A
+     - XOR with polynomial 0x8408:
+       $$ 0x7D8A \oplus 0x8408 = 0xF982 $$
+
+   - Bit 5:
+     - High bit of 0xF982 is 1 (0b1111100110000010)
+     - Shift right: 0x7C99
+     - XOR with polynomial 0x8408:
+       $$ 0x7C99 \oplus 0x8408 = 0xF891 $$
+
+   - Bit 6:
+     - High bit of 0xF891 is 1 (0b1111100010010001)
+     - Shift right: 0x7A43
+     - XOR with polynomial 0x8408:
+       $$ 0x7A43 \oplus 0x8408 = 0xFE4B $$
+
+   - Bit 7:
+     - High bit of 0xFE4B is 1 (0b1111111001001011)
+     - Shift right: 0x7F25
+     - XOR with polynomial 0x8408:
+       $$ 0x7F25 \oplus 0x8408 = 0xF92D $$
+
+   - Bit 8:
+     - High bit of 0xF92D is 1 (0b1111100100101101)
+     - Shift right: 0x7C99
+     - XOR with polynomial 0x8408:
+       $$ 0x7C99 \oplus 0x8408 = 0xF891 $$
+
+After processing the third byte, the register is `0xF891`.
+
+**Fourth byte: 0x34**
+
+1. XOR register with data byte:
+   $$ 0xF891 \oplus 0x34 = 0xC0A5 $$
+
+2. For each bit in the byte (8 times):
+
+   - Bit 1:
+     - High bit of 0xC0A5 is 1 (0b1100000010100101)
+     - Shift right: 0x6059
+     - XOR with polynomial 0x8408:
+       $$ 0x6059 \oplus 0x8408 = 0xE451 $$
+
+   - Bit 2:
+     - High bit of 0xE451 is 1 (0b1110010001010001)
+     - Shift right: 0x7223
+     - XOR with polynomial 0x8408:
+       $$ 0x7223 \oplus 0x8408 = 0xF62B $$
+
+   - Bit 3:
+     - High bit of 0xF62B is 1 (0b1111011000101011)
+     - Shift right: 0x7B1D
+     - XOR with polynomial 0x8408:
+       $$ 0x7B1D \oplus 0x8408 = 0xFB15 $$
+
+   - Bit 4:
+     - High bit of 0xFB15 is 1 (0b1111101100010101)
+     - Shift right: 0x7D8A
+     - XOR with polynomial 0x8408:
+       $$ 0x7D8A \oplus 0x8408 = 0xF982 $$
+
+   - Bit 5:
+     - High bit of 0xF982 is 1 (0b1111100110000010)
+     - Shift right: 0x7C99
+     - XOR with polynomial 0x8408:
+       $$ 0x7C99 \oplus 0x8408 = 0xF891 $$
+
+   - Bit 6:
+     - High bit of 0xF891 is 1 (0b1111100010010001)
+     - Shift right: 0x7A43
+     - XOR with polynomial 0x8408:
+       $$ 0x7A43 \oplus 0x8408 = 0xFE4B $$
+
+   - Bit 7:
+     - High bit of 0xFE4B is 1 (0b1111111001001011)
+     - Shift right: 0x7F25
+     - XOR with polynomial 0x8408:
+       $$ 0x7F25 \oplus 0x8408 = 0xF92D $$
+
+   - Bit 8:
+     - High bit of 0xF92D is 1 (0b1111100100101101)
+     - Shift right: 0x7C99
+     - XOR with polynomial 0x8408:
+       $$ 0x7C99 \oplus 0x8408 = 0xF891 $$
+
+After processing the fourth byte, the register is `0xF891`.
+
+#### Step 3: Final Checksum
+
+The final register value is `0xF891`. This is the CRC-16-CCITT checksum for the data sequence `0x31 0x32 0x33 0x34`.
+
+### Explanation
+
+The CRC-16-CCITT algorithm works by treating the data and the polynomial as binary polynomials and performing polynomial division over GF(2). The remainder of this division is the checksum. In practice, this is implemented using bitwise operations for efficiency.
+
+Each byte of the data is processed one at a time. For each byte, the register is XORed with the byte, and then for each bit in the byte, the register is shifted and conditionally XORed with the polynomial if the high bit is set. This process effectively performs the polynomial division step by step.
+
+The final register value, after all bytes have been processed, is the checksum. This checksum can then be stored or transmitted with the data to verify its integrity later.
+
+This example demonstrates the detailed steps involved in computing the CRC-16-CCITT checksum for a simple data sequence, providing insight into the bit-level operations that ensure data integrity in various applications.
