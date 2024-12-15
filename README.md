@@ -108,3 +108,180 @@ The program performs the following steps:
     ```bash
     ./query_engine
     ```
+
+
+-------------------------
+
+### Example Calculation 
+
+The CRC-16-CCITT algorithm is a widely used error-detecting code that generates a 16-bit checksum. It uses a specific polynomial for its calculations: $$x^{16} + x^{12} + x^{5} + 1$$, which corresponds to the hexadecimal value 0x1021. However, in the provided code, the polynomial is represented as 0x8408, which is the reflected version of 0x1021 for the implementation details.
+
+#### Algorithm Steps
+
+1. **Initialization**:
+   - Start with a 16-bit register initialized to 0xFFFF.
+
+2. **Processing Each Byte**:
+   - For each byte in the data:
+     - XOR the top 8 bits of the register with the current data byte.
+     - For each of the 8 bits in the byte:
+       - If the least significant bit (LSB) of the register is 1, shift the register right and XOR it with the polynomial (0x8408).
+       - If the LSB is 0, just shift the register right.
+
+3. **Final Checksum**:
+   - The final value in the register is the checksum.
+
+#### Example Data
+
+Let's calculate the CRC-16-CCITT for the data sequence: 0x31, 0x32, 0x33 (corresponding to ASCII '1', '2', '3').
+
+#### Step-by-Step Calculation
+
+1. **Initialization**:
+   $$
+   \text{register} = 0xFFFF
+   $$
+
+2. **Processing the First Byte (0x31)**:
+
+   - **XOR register with data byte**:
+     $$
+     0xFFFF \oplus 0x31 = 0xFFC0
+     $$
+
+   - **Bitwise Processing**:
+     - Bit 7: 0x80 (128)
+       - LSB of 0xFFC0 is 0 (register: 0xFFC0 & 0x0001 = 0)
+       - Shift right: 0xFFC0 >> 1 = 0x7FF8
+     - Bit 6: 0x40 (64)
+       - LSB of 0x7FF8 is 0
+       - Shift right: 0x7FF8 >> 1 = 0x3FFC
+     - Bit 5: 0x20 (32)
+       - LSB of 0x3FFC is 0
+       - Shift right: 0x3FFC >> 1 = 0x1FFE
+     - Bit 4: 0x10 (16)
+       - LSB of 0x1FFE is 0
+       - Shift right: 0x1FFE >> 1 = 0x0FFE
+     - Bit 3: 0x08 (8)
+       - LSB of 0x0FFE is 0
+       - Shift right: 0x0FFE >> 1 = 0x07FE
+     - Bit 2: 0x04 (4)
+       - LSB of 0x07FE is 0
+       - Shift right: 0x07FE >> 1 = 0x03FE
+     - Bit 1: 0x02 (2)
+       - LSB of 0x03FE is 0
+       - Shift right: 0x03FE >> 1 = 0x01FE
+     - Bit 0: 0x01 (1)
+       - LSB of 0x01FE is 0
+       - Shift right: 0x01FE >> 1 = 0x00FE
+
+   - **Final register after first byte**: 0x00FE
+
+3. **Processing the Second Byte (0x32)**:
+
+   - **XOR register with data byte**:
+     $$
+     0x00FE \oplus 0x32 = 0x33D
+     $$
+
+   - **Bitwise Processing**:
+     - Bit 7: 0x80 (128)
+       - LSB of 0x033D is 1 (register: 0x033D & 0x0001 = 1)
+       - Shift right and XOR with 0x8408:
+         $$
+         (0x033D >> 1) = 0x019E
+         $$
+         $$
+         0x019E \oplus 0x8408 = 0x85A6
+         $$
+     - Bit 6: 0x40 (64)
+       - LSB of 0x85A6 is 0
+       - Shift right: 0x85A6 >> 1 = 0x42D3
+     - Bit 5: 0x20 (32)
+       - LSB of 0x42D3 is 1
+       - Shift right and XOR with 0x8408:
+         $$
+         (0x42D3 >> 1) = 0x2169
+         $$
+         $$
+         0x2169 \oplus 0x8408 = 0x8561
+         $$
+     - Bit 4: 0x10 (16)
+       - LSB of 0x8561 is 1
+       - Shift right and XOR with 0x8408:
+         $$
+         (0x8561 >> 1) = 0x42B0
+         $$
+         $$
+         0x42B0 \oplus 0x8408 = 0x86B8
+         $$
+     - Bit 3: 0x08 (8)
+       - LSB of 0x86B8 is 0
+       - Shift right: 0x86B8 >> 1 = 0x435C
+     - Bit 2: 0x04 (4)
+       - LSB of 0x435C is 0
+       - Shift right: 0x435C >> 1 = 0x21AE
+     - Bit 1: 0x02 (2)
+       - LSB of 0x21AE is 0
+       - Shift right: 0x21AE >> 1 = 0x10D7
+     - Bit 0: 0x01 (1)
+       - LSB of 0x10D7 is 1
+       - Shift right and XOR with 0x8408:
+         $$
+         (0x10D7 >> 1) = 0x086B
+         $$
+         $$
+         0x086B \oplus 0x8408 = 0x8C63
+         $$
+
+   - **Final register after second byte**: 0x8C63
+
+4. **Processing the Third Byte (0x33)**:
+
+   - **XOR register with data byte**:
+     $$
+     0x8C63 \oplus 0x33 = 0x8C50
+     $$
+
+   - **Bitwise Processing**:
+     - Bit 7: 0x80 (128)
+       - LSB of 0x8C50 is 0
+       - Shift right: 0x8C50 >> 1 = 0x4628
+     - Bit 6: 0x40 (64)
+       - LSB of 0x4628 is 0
+       - Shift right: 0x4628 >> 1 = 0x2314
+     - Bit 5: 0x20 (32)
+       - LSB of 0x2314 is 0
+       - Shift right: 0x2314 >> 1 = 0x118A
+     - Bit 4: 0x10 (16)
+       - LSB of 0x118A is 0
+       - Shift right: 0x118A >> 1 = 0x08C5
+     - Bit 3: 0x08 (8)
+       - LSB of 0x08C5 is 1
+       - Shift right and XOR with 0x8408:
+         $$
+         (0x08C5 >> 1) = 0x0462
+         $$
+         $$
+         0x0462 \oplus 0x8408 = 0x886A
+         $$
+     - Bit 2: 0x04 (4)
+       - LSB of 0x886A is 0
+       - Shift right: 0x886A >> 1 = 0x4435
+     - Bit 1: 0x02 (2)
+       - LSB of 0x4435 is 1
+       - Shift right and XOR with 0x8408:
+         $$
+         (0x4435 >> 1) = 0x221A
+         $$
+         $$
+         0x221A \oplus 0x8408 = 0x8612
+         $$
+     - Bit 0: 0x01 (1)
+       - LSB of 0x8612 is 0
+       - Shift right: 0x8612 >> 1 = 0x4309
+
+   - **Final register after third byte**: 0x4309
+
+5. **Final Checksum**:
+   - The final value in the register is 0x4309. This is the CRC-16-CCITT checksum for the data sequence 0x31, 0x32, 0x33.
