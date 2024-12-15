@@ -114,6 +114,12 @@ The program performs the following steps:
 
 ### Example Calculation the CRC-16-CCITT checksum for a given data sequence.
 
+I will provide an example calculation related to the CRC-16-CCITT checksum calculation, which is a key component in the provided code. CRC (Cyclic Redundancy Check) is a method of detecting accidental changes to raw data, and CRC-16-CCITT is a specific variant of this method.
+
+### Example Calculation: CRC-16-CCITT
+
+**Objective**: Calculate the CRC-16-CCITT checksum for a given data sequence.
+
 **Given Data**: Let's consider the data sequence `0x31 0x32 0x33 0x34`, which corresponds to the ASCII values of '1', '2', '3', '4'.
 
 **Polynomial**: The CRC-16-CCITT uses the polynomial $$ x^{16} + x^{12} + x^{5} + 1 $$, which corresponds to the hexadecimal value `0x1021`. However, in the code provided, the polynomial used in the shift operation is `0x8408`, which is the reflected version of `0x1021` for byte-wise processing.
@@ -189,7 +195,7 @@ $$ \text{register} = 0xFFFF $$
        $$ 0x7C93 \oplus 0x8408 = 0xF89B $$
 
    - Bit 8:
-     - High bit of 0xF89B is 1 (0b1111100010011011)
+     - High bit of 0xF89B is 1 (0b1111100011011011)
      - Shift right: 0x7C4D
      - XOR with polynomial 0x8408:
        $$ 0x7C4D \oplus 0x8408 = 0xF845 $$
@@ -279,7 +285,7 @@ After processing the second byte, the register is `0xF891`.
        $$ 0x7B1D \oplus 0x8408 = 0xFB15 $$
 
    - Bit 4:
-     - High bit of 0xFB15 is 1 (0b1111101100010101)
+     - High bit of 0xFB15 is 1 (0b1111101100010101) 
      - Shift right: 0x7D8A
      - XOR with polynomial 0x8408:
        $$ 0x7D8A \oplus 0x8408 = 0xF982 $$
@@ -361,9 +367,9 @@ After processing the third byte, the register is `0xF891`.
 
    - Bit 8:
      - High bit of 0xF92D is 1 (0b1111100100101101)
-     - Shift right: 0x7C99
+     - Shift right: 0x7C99 
      - XOR with polynomial 0x8408:
-       $$ 0x7C99 \oplus 0x8408 = 0xF891 $$
+       $$0x7C99 \oplus 0x8408 = 0xF891$$
 
 After processing the fourth byte, the register is `0xF891`.
 
@@ -375,7 +381,7 @@ The final register value is `0xF891`. This is the CRC-16-CCITT checksum for the 
 
 The CRC-16-CCITT algorithm works by treating the data and the polynomial as binary polynomials and performing polynomial division over GF(2). The remainder of this division is the checksum. In practice, this is implemented using bitwise operations for efficiency.
 
-Each byte of the data is processed one at a time. For each byte, the register is XORed with the byte, and then for each bit in the byte, the register is shifted and conditionally XORed with the polynomial if the high bit is set. This process effectively performs the polynomial division step by step.
+Each byte of the data is processed one at a time. For each byte, the register is XORed with the data byte, and then for each bit in the byte, the register is shifted and conditionally XORed with the polynomial if the high bit is set. This process effectively performs the polynomial division step by step.
 
 The final register value, after all bytes have been processed, is the checksum. This checksum can then be stored or transmitted with the data to verify its integrity later.
 
